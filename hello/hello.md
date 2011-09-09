@@ -1,18 +1,35 @@
 !SLIDE
-# 
 
-## hello. my name is @_
+## hallo.
+## mein name ist Jan Berkel
 
-!SLIDE
+![Twitter Bird](hello/twitter_newbird_blue.png)
 
-# Three
+## @jberkel
 
-!SLIDE
-
-# Two
 
 !SLIDE
 
-# One
+# etwas über mich
 
-![pic](hello/test.jpg "pics")
+## Android lead dev bei SoundCloud in Berlin
+
+![SoundCloud Logo](hello/800x500_orange.png)
+
+!SLIDE
+
+# SoundCloud Android app
+
+![pic](hello/stream.png)
+
+!SLIDE
+
+# Record sounds
+
+![pic](hello/recording.png)
+
+!SLIDE
+
+# & play them
+
+![pic](hello/player.png)
