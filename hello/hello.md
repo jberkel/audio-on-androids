@@ -101,4 +101,7 @@ player.prepare();
 player.start();
 </pre>
 
+Die eigentliche Funktionalität wird von einem nativen Framework bereitgestellt.
+
+
 [andraudio]: http://code.google.com/p/andraudio/
