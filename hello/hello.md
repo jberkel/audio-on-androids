@@ -80,8 +80,8 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 
 * [AudioTrack][]
 * [MediaPlayer][]
+* [MediaRecorder][]
 * [SoundPool][]
-* [AudioRecorder][]
 * [Open SL ES][]
 
 [MediaPlayer]: http://developer.android.com/reference/android/media/MediaPlayer.html
@@ -155,15 +155,37 @@ Low-latency, concurrent playback
 
 Wird normalerweise für Soundeffekte bei Spielen eingesetzt
 
-!SLIDE 
+!SLIDE
 
 # Open SL ES
 
-Seit Android 2.3 - zugänglich mit dem Android NDK (C/C++).
+> OpenSL ES is an application-level C-language audio API designed for
+> resource-constrained devices.
 
+<br/>
+
+Seit Android 2.3 - zugänglich mit dem [Android NDK][] (C/C++).
+
+<br/>
+
+Vermeidet den overhead von JNI, löst jedoch nicht das Latenzproblem.
+
+[Android NDK]: http://developer.android.com/sdk/ndk/index.html
 
 !SLIDE
 
-[andraudio]: http://code.google.com/p/andraudio/
+# Latenz?
 
+Wichtig für realtime-Andwendungen, z.B. virtuelle Synthesizer.
 
+<br/>
+
+Idealerweise &lt; 10ms (jede Millisekunde zählt)
+
+<br/>
+
+Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
+
+<br/>
+
+→ Nativer Code mit einer low-level API

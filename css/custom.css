@@ -2,6 +2,15 @@
 a:link, a:visited { color:#FF1385; }
 a:hover { color:#12A0FF; }
 
+blockquote {
+  font-style: italic;
+  font-size: smaller;
+  margin: 1em 3em;
+}
+
+blockquote p:before { content: '“' }
+blockquote p:after { content: '”' }
+
 img { max-height:500px;}
 
 .subtle { color: #ccc; font-size:smaller; margin-bottom:5em;}
