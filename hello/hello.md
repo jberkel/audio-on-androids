@@ -58,7 +58,7 @@ in den Geräten
 
 <br/>
 
-Das unterliegende low-level Medienframework wurde in Android 2.0 komplett ausgetauscht
+Das unterliegende low-level Medienframework wurde in Android 2.3 komplett ausgetauscht
 (opencore → stagefright)
 
 !SLIDE
@@ -124,7 +124,9 @@ Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgeste
 
 !SLIDE
 
+<a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
 <embed src="hello/architecture.svg" height="90%" type="image/svg+xml"/>
+</a>
 
 !SLIDE
 
@@ -189,3 +191,33 @@ Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
 <br/>
 
 → Nativer Code mit einer low-level API
+
+!SLIDE
+
+# “This app SUCKS right now.”
+
+![pic](hello/sucks.png)
+
+!SLIDE
+
+<a href="https://docs.google.com/drawings/d/1TcO7CUBDW0FrzzU4nfkwZIgr_p5VqsthNzPjCQAFyqo/edit?hl=en_GB">
+<embed src="hello/stagefright.svg" height="90%" type="image/svg+xml"/>
+</a>
+
+!SLIDE
+
+# opencore → stagefright
+
+Komplettes rewrite des Mediaframeworks in Android 2.3.
+
+<br/>
+
+Java API identisch, jedoch Unterschiede zur Laufzeit.
+
+<br/>
+
+Detektion des Frameworks + spezifischer Code notwending
+
+
+
+
