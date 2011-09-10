@@ -58,7 +58,7 @@ in den Geräten
 
 <br/>
 
-Das unterliegende low-level Medienframework wurde in Android 2.3 komplett ausgetauscht
+Das unterliegende low-level Medienframework wurde in Android 2.0 komplett ausgetauscht
 (opencore → stagefright)
 
 !SLIDE
@@ -78,9 +78,10 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 
 <br/>
 
-* [MediaPlayer][] + [MediaRecorder][]
 * [AudioTrack][]
+* [MediaPlayer][]
 * [SoundPool][]
+* [AudioRecorder][]
 * [Open SL ES][]
 
 [MediaPlayer]: http://developer.android.com/reference/android/media/MediaPlayer.html
@@ -88,6 +89,24 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 [AudioTrack]: http://developer.android.com/reference/android/media/AudioTrack.html
 [SoundPool]: http://developer.android.com/reference/android/media/SoundPool.html
 [Open SL ES]: http://www.khronos.org/opensles/
+
+!SLIDE
+
+# AudioTrack
+
+Low-level PCM only output
+
+<pre class="prettyprint">
+AudioTrack track = new AudioTrack(
+     AudioManager.STREAM_MUSIC, 44100,
+     AudioFormat.CHANNEL_CONFIGURATION_MONO,
+     AudioFormat.ENCODING_PCM_16BIT,
+     bufferSize, AudioTrack.MODE_STREAM);
+track.play();
+track.write(new byte[] { 1b, 2b, 3b }, 0, 3);
+</pre>
+
+
 !SLIDE
 
 # MediaPlayer
@@ -101,7 +120,50 @@ player.prepare();
 player.start();
 </pre>
 
-Die eigentliche Funktionalität wird von einem nativen Framework bereitgestellt.
+Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgestellt
 
+!SLIDE
+
+<embed src="hello/architecture.svg" height="90%" type="image/svg+xml"/>
+
+!SLIDE
+
+# MediaRecorder
+
+Gegenstück zum Player, Aufnahme über das Mikrofon.
+
+<br/>
+
+Unterstützte Formate varieren stark mit der Plattform. [AAC encoding][] erst ab
+[Android 2.3.3][].
+
+<br/>
+
+Im Vergleich zu iOS kein Hardware-support für en/decoding!
+
+[AAC encoding]: http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4
+[Android 2.3.3]: http://developer.android.com/sdk/android-2.3.3.html
+[iOS]: http://developer.apple.com/library/ios/#DOCUMENTATION/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
+
+!SLIDE
+
+# SoundPool
+
+Low-latency, concurrent playback
+
+<br/>
+
+Wird normalerweise für Soundeffekte bei Spielen eingesetzt
+
+!SLIDE 
+
+# Open SL ES
+
+Seit Android 2.3 - zugänglich mit dem Android NDK (C/C++).
+
+
+!SLIDE
 
 [andraudio]: http://code.google.com/p/andraudio/
+
+
