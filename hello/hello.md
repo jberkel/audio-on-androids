@@ -136,14 +136,14 @@ Gegenstück zum Player, Aufnahme über das Mikrofon.
 
 <br/>
 
-Unterstützte Formate varieren stark mit der Plattform. [AAC encoding][] erst ab
-[Android 2.3.3][].
+Unterstützte Formate varieren stark mit der Plattform. Gute Qualität ([AAC][]) erst ab
+[Android 2.3.3][] möglich.
 
 <br/>
 
 Im Vergleich zu iOS kein Hardware-support für en/decoding!
 
-[AAC encoding]: http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4
+[AAC]: http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4
 [Android 2.3.3]: http://developer.android.com/sdk/android-2.3.3.html
 [iOS]: http://developer.apple.com/library/ios/#DOCUMENTATION/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html
 
@@ -206,18 +206,87 @@ Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
 
 !SLIDE
 
-# opencore → stagefright
+# moving goalposts
+## (opencore → stagefright)
 
 Komplettes rewrite des Mediaframeworks in Android 2.3.
 
 <br/>
 
-Java API identisch, jedoch Unterschiede zur Laufzeit.
+Java API identisch, jedoch Unterschiede zur Laufzeit (kein seeking)
 
 <br/>
 
-Detektion des Frameworks + spezifischer Code notwending
+[Ermittlung][] des Frameworks + spezifischer Code notwendig
 
+[Ermittlung]: http://stackoverflow.com/questions/4579885/determine-opencore-or-stagefright-framework-for-mediaplayer
 
+!SLIDE
 
+# hinzu kommt...
+
+<br/>
+
+manche 2.3+ Geräte benutzen immer noch opencore (v.a. Samsung) - Erkennung des
+Frameworks nicht 100% zuverlässig
+
+!SLIDE
+
+# erschwertes debugging
+![pic](hello/mp_error.png)
+
+!SLIDE
+
+# die alternative: go native
+
+Das bedeutet:
+<br/>
+
+* Eigenes Streaming + Buffering
+* dekodieren der Audiodaten mit nativen Code
+* Abspielen via AudioTrack-Interface
+
+<br/>
+
+→ Hoher Aufwand aber mehr Kontrolle
+
+!SLIDE
+
+# Implikationen von native code
+
+Audiocode relativ leicht portierbar, z.Zt. nur ARMv7 (FPU erforderlich), zukünftig auch x86
+
+<br/>
+
+Dank JNI problemloses Mischen von nativem und Java-Code möglich
+
+!SLIDE
+
+# Designaspekte von Audio apps
+
+<br/>
+
+## disclaimer: IANAD
+
+!SLIDE
+
+# Notifications
+
+"Ongoing notification" für den aktuellen Track
+
+![pic](hello/spotify_browser.png)
+![pic](hello/spotify_notification.png)
+![pic](hello/spotify_player.png)
+
+!SLIDE
+
+# Embed artwork
+
+![pic](hello/ubermusic_notification.png)
+![pic](hello/ubermusic_player.png)
+
+!SLIDE
+
+# Headphone controls
+!
 
