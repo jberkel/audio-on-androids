@@ -286,12 +286,76 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 
 <img src="hello/headphones.jpg" class="centered"/>
 
-
 !SLIDE
 
-    AudioManager m = (AudioManager)
-      Context.getSystemService(Context.AUDIO_SERVICE);
+# Intentreceiver registrieren
+
+    AudioManager m = getAudioManager();
 
     m.registerMediaButtonEventReceiver(
       new ComponentName(getPackageName(),
       RemoteControlReceiver.class.getName()));
+
+
+!SLIDE
+
+### android.intent.action.MEDIA\_BUTTON
+
+<br/>
+KeyEvent.KEYCODE\_
+
+<br/>
+
+ * MEDIA\_PLAY\_PAUSE
+ * MEDIA\_PREVIOUS
+ * MEDIA\_NEXT
+ * MEDIA\_REWIND
+
+!SLIDE
+
+# Lockscreen controls
+
+
+<img src="hello/lock_screen_player.png" class="left"/>
+
+* com.android.music.metachanged
+* com.android.music.playstatechanged
+
+!SLIDE
+
+### ACTION\_AUDIO\_BECOMING\_NOISY
+
+<br/>
+
+Wird vom System gesendet wenn der Kopfhörer entfernt wird
+
+<br/>
+
+→ Audiowiedergabe stoppen
+
+
+!SLIDE
+
+# Audiofocus
+
+Was passiert wenn mehrere Music apps zur gleichen Zeit aktiv sind?
+
+    AudioManager m = getAudioManager();
+    m.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+      AudioManager.AUDIOFOCUS_GAIN);
+
+!SLIDE
+
+# Wenn's Telefon klingelt
+
+    TelephonyManager tmgr = getTelephonyManager();
+    tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+
+!SLIDE
+
+# AudioEffects
+
+!SLIDE
+
+# Ausblick
