@@ -96,16 +96,13 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 
 Low-level PCM only output
 
-<pre class="prettyprint">
-AudioTrack track = new AudioTrack(
-     AudioManager.STREAM_MUSIC, 44100,
-     AudioFormat.CHANNEL_CONFIGURATION_MONO,
-     AudioFormat.ENCODING_PCM_16BIT,
-     bufferSize, AudioTrack.MODE_STREAM);
-track.play();
-track.write(new byte[] { 1b, 2b, 3b }, 0, 3);
-</pre>
-
+    AudioTrack track = new AudioTrack(
+         AudioManager.STREAM_MUSIC, 44100,
+         AudioFormat.CHANNEL_CONFIGURATION_MONO,
+         AudioFormat.ENCODING_PCM_16BIT,
+         bufferSize, AudioTrack.MODE_STREAM);
+    track.play();
+    track.write(new byte[] { 1b, 2b, 3b }, 0, 3);
 
 !SLIDE
 
@@ -113,12 +110,10 @@ track.write(new byte[] { 1b, 2b, 3b }, 0, 3);
 
 High-level Audio/Video player, unterstützt HTTP Streaming.
 
-<pre class="prettyprint">
-MediaPlayer player = new MediaPlayer();
-player.setDataSource("http://foo.com/audio.mp3");
-player.prepare();
-player.start();
-</pre>
+    MediaPlayer player = new MediaPlayer();
+    player.setDataSource("http://foo.com/audio.mp3");
+    player.prepare();
+    player.start();
 
 Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgestellt
 
@@ -288,5 +283,15 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 !SLIDE
 
 # Headphone controls
-!
 
+<img src="hello/headphones.jpg" class="centered"/>
+
+
+!SLIDE
+
+    AudioManager m = (AudioManager)
+      Context.getSystemService(Context.AUDIO_SERVICE);
+
+    m.registerMediaButtonEventReceiver(
+      new ComponentName(getPackageName(),
+      RemoteControlReceiver.class.getName()));

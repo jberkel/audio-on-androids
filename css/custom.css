@@ -13,6 +13,11 @@ blockquote p:after { content: '”' }
 
 img { max-height:500px;}
 
+img.centered {
+  display: block;
+  margin: auto;
+}
+
 .subtle { color: #ccc; font-size:smaller; margin-bottom:5em;}
 
 li { list-style: none; }
