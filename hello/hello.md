@@ -234,6 +234,12 @@ Frameworks nicht 100% zuverlässig
 
 !SLIDE
 
+# bugs im audiosystem
+
+[BUG-15953]: http://code.google.com/p/android/issues/detail?id=15953
+
+!SLIDE
+
 # die alternative: go native
 
 Das bedeutet:
