@@ -2,6 +2,13 @@
 a:link, a:visited { color:#FF1385; }
 a:hover { color:#12A0FF; }
 
+body {
+  background-image: url('../hello/mobiletechon.png');
+  background-repeat:no-repeat;
+  background-position: right top;
+  background-attachment: fixed;
+}
+
 blockquote {
   font-style: italic;
   font-size: smaller;

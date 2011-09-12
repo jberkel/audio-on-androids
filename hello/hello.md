@@ -1,6 +1,9 @@
 !SLIDE
 
-## Hallo. Wilkommen zu:
+<br/>
+<br/>
+
+### Jan Berkel / SoundCloud Ltd.
 # Audio on Android(s)
 
 <span class="left">
@@ -257,6 +260,22 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 
 !SLIDE
 
+# Fragmentation, testing
+
+![pic](hello/market_stats.png)
+
+!SLIDE
+
+# Do a beta!
+
+!SLIDE
+
+# Playback
+
+Background service, startForeground()
+
+!SLIDE
+
 # Designaspekte von Audio apps
 
 <br/>
@@ -355,6 +374,22 @@ Was passiert wenn mehrere Music apps zur gleichen Zeit aktiv sind?
 !SLIDE
 
 # AudioEffects
+
+!SLIDE
+
+# HTML5 Audio support im Browser
+
+  * probleme mit https streaming (redirect - versionsabhaengig)
+  * besser als iOS (bessere umsetzung der HTML5 spec - preloading)
+  * mp3, ogg, wav
+  * 2.1-2 unsterstützt video object
+  * 2.3 unsterstützt audio object
+
+    <audio controls>
+      <source src="foo.mp3" type="audio/mp3">
+      <source src="foo.ogg" type="audio/ogg">
+      Your browser does not support the audio element.
+    </audio>
 
 !SLIDE
 
