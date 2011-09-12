@@ -20,10 +20,19 @@ blockquote p:after { content: '”' }
 
 img { max-height:500px;}
 
-img.centered {
+img.big {
+  height: 70%;
+}
+
+img.medium {
+  height: 55%;
+}
+
+.centered {
   display: block;
   margin: auto;
 }
+
 
 .subtle { color: #ccc; font-size:smaller; margin-bottom:5em;}
 
@@ -42,6 +51,7 @@ iframe {
 
 .right {
   float: right;
+  text-align: left;
 }
 
 /* Pretty printing styles. Used with prettify.js. */

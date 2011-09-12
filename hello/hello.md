@@ -6,9 +6,7 @@
 ### Jan Berkel / SoundCloud Ltd.
 # Audio on Android(s)
 
-<span class="left">
-<img src="hello/twitter_newbird_blue.png"/>
-</span>
+<!-- <img src="hello/twitter_newbird_blue.png" class="right"/> -->
 
 <br/>
 <br/>
@@ -62,7 +60,7 @@ in den Geräten
 <br/>
 
 Das unterliegende low-level Medienframework wurde in Android 2.3 komplett ausgetauscht
-(opencore → stagefright)
+(OpenCORE → stagefright)
 
 !SLIDE
 
@@ -97,7 +95,7 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 
 # AudioTrack
 
-Low-level PCM only output
+Ausgabe von “rohen” Audio-Daten (PCM)
 
     AudioTrack track = new AudioTrack(
          AudioManager.STREAM_MUSIC, 44100,
@@ -205,7 +203,7 @@ Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
 !SLIDE
 
 # moving goalposts
-## (opencore → stagefright)
+## (OpenCORE → stagefright)
 
 Komplettes rewrite des Mediaframeworks in Android 2.3.
 
@@ -225,13 +223,14 @@ Java API identisch, jedoch Unterschiede zur Laufzeit (kein seeking)
 
 <br/>
 
-manche 2.3+ Geräte benutzen immer noch opencore (v.a. Samsung) - Erkennung des
+manche 2.3+ Geräte benutzen immer noch OpenCORE (v.a. Samsung) - Erkennung des
 Frameworks nicht 100% zuverlässig
 
 !SLIDE
 
 # erschwertes debugging
-![pic](hello/mp_error.png)
+
+<img src="hello/mp_error.png" class="centered medium"/>
 
 !SLIDE
 
@@ -246,13 +245,13 @@ Das bedeutet:
 
 <br/>
 
-→ Hoher Aufwand aber mehr Kontrolle
+→ hoher Aufwand aber mehr Kontrolle
 
 !SLIDE
 
-# Implikationen von native code
+# Implikationen von nativem Code
 
-Audiocode relativ leicht portierbar, z.Zt. nur ARMv7 (FPU erforderlich), zukünftig auch x86
+Audiocode leicht portierbar, z.Zt. nur ARMv7 (FPU), zukünftig auch x86
 
 <br/>
 
@@ -260,19 +259,9 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 
 !SLIDE
 
-# Fragmentation, testing
+# Testen der häufigsten Geräte
 
-![pic](hello/market_stats.png)
-
-!SLIDE
-
-# Do a beta!
-
-!SLIDE
-
-# Playback
-
-Background service, startForeground()
+<img src="hello/market_stats.png" class="centered big"/>
 
 !SLIDE
 
@@ -280,7 +269,30 @@ Background service, startForeground()
 
 <br/>
 
-## disclaimer: IANAD
+## disclaimer: ich bin kein Designer.
+
+<br/>
+
+### Harmonische Integration von Audio apps im System
+
+!SLIDE
+
+# Hintergrundmusik
+
+Android Service zwingend erforderlich
+
+    // MyPlaybackService.java
+    public void onCreate() {
+        startForeground(SERVICE_ID, getNotification());
+    }
+
+!SLIDE
+
+# Energiesparen
+
+<img src="hello/battery.png" class="left big"/>
+
+Mit WifiLocks, PowerLocks, ...
 
 !SLIDE
 
@@ -294,20 +306,27 @@ Background service, startForeground()
 
 !SLIDE
 
-# Embed artwork
+## Albumartwork in Notifications
 
 ![pic](hello/ubermusic_notification.png)
 ![pic](hello/ubermusic_player.png)
 
 !SLIDE
 
-# Headphone controls
+## An die Hardware denken
 
-<img src="hello/headphones.jpg" class="centered"/>
+<img src="hello/headphones.jpg" class="centered big"/>
 
 !SLIDE
 
-# Intentreceiver registrieren
+## Fernbedienung
+
+<img src="hello/headphones_button.jpg" class="centered big"/>
+
+!SLIDE
+
+
+# Interesse daran anmelden
 
     AudioManager m = getAudioManager();
 
@@ -315,25 +334,40 @@ Background service, startForeground()
       new ComponentName(getPackageName(),
       RemoteControlReceiver.class.getName()));
 
+!SLIDE
+
+
+# Nützliche Events
+
+<br/>
+KeyEvent.KEYCODE\_MEDIA\_
+
+<br/>
+
+ * [PLAY\_PAUSE][]
+ * [PREVIOUS][]
+ * [NEXT][]
+ * [REWIND][]
+
+[PLAY\_PAUSE]: http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_PAUSE
+[PREVIOUS]: http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_PREVIOUS
+[NEXT]: http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_NEXT
+[REWIND]: http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_REWIND
 
 !SLIDE
 
-### android.intent.action.MEDIA\_BUTTON
+# Nützliche Events (2)
 
 <br/>
-KeyEvent.KEYCODE\_
+ACTION\_AUDIO\_BECOMING\_NOISY
 
 <br/>
 
- * MEDIA\_PLAY\_PAUSE
- * MEDIA\_PREVIOUS
- * MEDIA\_NEXT
- * MEDIA\_REWIND
+<!-- Wird vom System gesendet wenn der Kopfhörer entfernt wird -->
 
 !SLIDE
 
-# Lockscreen controls
-
+# Lockscreen
 
 <img src="hello/lock_screen_player.png" class="left"/>
 
@@ -342,48 +376,68 @@ KeyEvent.KEYCODE\_
 
 !SLIDE
 
-### ACTION\_AUDIO\_BECOMING\_NOISY
+# Darf ich Musik spielen?
 
-<br/>
-
-Wird vom System gesendet wenn der Kopfhörer entfernt wird
-
-<br/>
-
-→ Audiowiedergabe stoppen
-
-
-!SLIDE
-
-# Audiofocus
-
-Was passiert wenn mehrere Music apps zur gleichen Zeit aktiv sind?
 
     AudioManager m = getAudioManager();
-    m.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+    m.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
       AudioManager.AUDIOFOCUS_GAIN);
+
+Wichtig wenn mehrere apps gleichzeitig laufen
 
 !SLIDE
 
 # Wenn's Telefon klingelt
 
+<img src="hello/incoming_call.png" class="right"/>
+
     TelephonyManager tmgr = getTelephonyManager();
     tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
+!SLIDE
+
+# Sharing is caring
+
+Android hat Datenaustausch bereits eingebaut:
+
+    <intent-filter>
+        <action android:name="android.intent.action.SEND"/>
+        <data android:mimeType="audio/*"/>
+    </intent-filter>
 
 !SLIDE
 
-# AudioEffects
+# Audio senden
+
+<img src="hello/tapemachine.png"/>
+
+TapeMachine
 
 !SLIDE
 
-# HTML5 Audio support im Browser
+# Audio senden (2)
 
-  * probleme mit https streaming (redirect - versionsabhaengig)
-  * besser als iOS (bessere umsetzung der HTML5 spec - preloading)
-  * mp3, ogg, wav
-  * 2.1-2 unsterstützt video object
-  * 2.3 unsterstützt audio object
+<img src="hello/tapemachine_share.png"/>
+
+Share
+
+!SLIDE
+
+# Audio im Browser
+
+!SLIDE
+
+## HTML5 Audio
+
+<br/>
+
+  * 2.1 / 2.2 unsterstützen &lt;video&gt; Tag
+  * Ab 2.3: &lt;audio&gt;
+  * Getreue Umsetzung der HTML5 spec
+
+!SLIDE
+
+# HTML audio objekt
 
     <audio controls>
       <source src="foo.mp3" type="audio/mp3">
@@ -391,6 +445,42 @@ Was passiert wenn mehrere Music apps zur gleichen Zeit aktiv sind?
       Your browser does not support the audio element.
     </audio>
 
+<audio controls class="centered">
+  <source src="hello/foo.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
+
+!SLIDE
+
+# html5test.com
+
+<img src="hello/html5test_big.png" class="centered big"/>
+
+!SLIDE
+
+# flash is required
+
+<img src="hello/thesixtyone.png" class="big"/>
+
+!SLIDE
+
+# m.soundcloud.com
+
+<img src="hello/m_soundcloud_com.png" class="centered big"/>
+
 !SLIDE
 
 # Ausblick
+
+!SLIDE
+
+# Resourcen
+
+* [code.google.com/p/andraudio](http://code.google.com/p/andraudio)
+* [audioboo][]
+* [Last.fm Android app][]
+
+
+[andraudio]: http://code.google.com/p/andraudio/
+[audioboo]: https://github.com/Audioboo/audioboo-android/
+[Last.fm Android app]: https://github.com/c99koder/lastfm-android/
