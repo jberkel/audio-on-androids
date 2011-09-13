@@ -3,11 +3,13 @@
 <br/>
 <br/>
 
-### Jan Berkel / SoundCloud Ltd.
+<img src="hello/android_headphones.jpg" class="right"/>
+
+### Jan Berkel / SoundCloud
 # Audio on Android(s)
 
-<!-- <img src="hello/twitter_newbird_blue.png" class="right"/> -->
 
+<br/>
 <br/>
 <br/>
 <br/>
@@ -25,8 +27,19 @@
 <img src="hello/sound_heart.png" class="left"/>
 <!-- ![SoundCloud Logo](hello/800x500_orange.png) -->
 
-Audio sharing Plattform, gegründet 2007. Ca. 7 Mio User, Schwerpunkt liegt auf
-den “content creators”.
+Audio-Sharing Plattform, gegründet 2007. Ca. 7 Mio User, web + API + native clients
+
+!SLIDE
+
+# Übersicht
+
+<br/>
+
+ * Erfahrungen + Herausforderungen
+ * Android Audio APIs
+ * Entwicklung mit dem NDK
+ * Designaspekte / Android-Integration
+ * HTML5 &lt;audio&gt;
 
 !SLIDE
 
@@ -36,7 +49,7 @@ den “content creators”.
 ![pic](hello/sc_share.png)
 ![pic](hello/sc_player.png)
 
-record / share / play
+record / share / stream
 
 !SLIDE
 
@@ -49,7 +62,18 @@ in den Geräten
 
 <br/>
 
+Neue Geräte
+
+<br/>
+
 Implementierungsdetails ändern sich sehr schnell
+
+<br/>
+
+  * 2.1 Januar '10
+  * 2.2 Mai '10
+  * 2.3 Dez '10
+  * 3.0 Februar '11
 
 !SLIDE
 
@@ -70,13 +94,13 @@ sehr schwer allen Benutzern eine konsistente Experience zu bieten
 * [MediaPlayer][]
 * [MediaRecorder][]
 * [SoundPool][]
-* [Open SL ES][]
+* [OpenSL ES][]
 
 [MediaPlayer]: http://developer.android.com/reference/android/media/MediaPlayer.html
 [MediaRecorder]: http://developer.android.com/reference/android/media/MediaRecorder.html
 [AudioTrack]: http://developer.android.com/reference/android/media/AudioTrack.html
 [SoundPool]: http://developer.android.com/reference/android/media/SoundPool.html
-[Open SL ES]: http://www.khronos.org/opensles/
+[OpenSL ES]: http://www.khronos.org/opensles/
 
 !SLIDE
 
@@ -183,6 +207,14 @@ Wird normalerweise für Soundeffekte bei Spielen eingesetzt
 manche 2.3+ Geräte benutzen *immer* noch OpenCORE (v.a. Samsung) - Erkennung
 nicht immer 100% zuverlässig
 
+
+
+    if (android.os.BUILD.SDK_INT > 8) {
+      // enable seeking
+    }
+
+## fail!
+
 !SLIDE
 
 # “This app SUCKS right now.”
@@ -203,6 +235,7 @@ All non-trivial abstractions, to some degree, are
 </p>
 </blockquote>
 
+The Law of Leaky Abstractions (Joel Spolsky)
 
 !SLIDE
 
@@ -233,6 +266,13 @@ All non-trivial abstractions, to some degree, are
 
 !SLIDE
 
+# Testen der häufigsten Geräte
+
+<img src="hello/market_stats.png" class="centered big"/>
+
+
+!SLIDE
+
 # die alternative: go native
 
 <br/>
@@ -249,7 +289,7 @@ Das bedeutet:
 
 !SLIDE
 
-# Open SL ES
+# OpenSL ES
 
 > OpenSL ES is an application-level C-language audio API designed for
 > resource-constrained devices.
@@ -262,7 +302,7 @@ Seit Android 2.3 - zugänglich mit dem [Android NDK][] (C/C++).
 
 !SLIDE
 
-# Open SL ES (2)
+# OpenSL ES (2)
 
 <a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
 <embed src="hello/opensl_es.svg" height="90%" type="image/svg+xml"/>
@@ -270,7 +310,7 @@ Seit Android 2.3 - zugänglich mit dem [Android NDK][] (C/C++).
 
 !SLIDE
 
-# Open SL ES (3)
+# OpenSL ES (3)
 
 Vermeidet den overhead von JNI, löst jedoch nicht das Latenzproblem.
 
@@ -296,12 +336,6 @@ Audiocode leicht portierbar, z.Zt. nur ARMv7 (FPU), später auch x86
 <br/>
 
 Dank JNI problemloses Mischen von nativem und Java-Code möglich
-
-!SLIDE
-
-# Testen der häufigsten Geräte
-
-<img src="hello/market_stats.png" class="centered big"/>
 
 !SLIDE
 
@@ -459,11 +493,11 @@ Wichtig wenn mehrere apps gleichzeitig laufen
     TelephonyManager tmgr =
         getTelephonyManager();
 
-    tmgr.listen(this, 
+    tmgr.listen(this,
         PhoneStateListener.LISTEN_CALL_STATE);
 
 
-    public void onCallStateChanged(int state, 
+    public void onCallStateChanged(int state,
         String incomingNumber) {
       //
     }
@@ -520,7 +554,7 @@ TapeMachine: Share
 
 !SLIDE
 
-## HTML5 &lt;audio&gt; auf Android 
+## HTML5 &lt;audio&gt; auf Android
 
 <br/>
 
@@ -554,12 +588,20 @@ TapeMachine: Share
 
 # Zusammenfassung
 
+<br/>
+
+ * Audio-Support in Android ist mächtig
+ * schwer für alle Anwender / Geräte zu optimieren
+ * erhöhter Entwicklungsaufwand
+ * Wichtig ist gute Integration mit dem System
+
 !SLIDE
 
 # Ausblick
 
+<br/>
+
 * ?
-* OpenAL (Open Audio Library), 3D Audio
 * Support für mehr Hardware MIDI-Controller
 * Optimierungen (Latenz, Hardware acceleration ...)
 * Hoffentlich mehr Musik/Audio apps, bes. auf Tablets
