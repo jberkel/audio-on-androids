@@ -126,7 +126,7 @@ Unterstützte Formate varieren stark mit der Plattform. Gute Qualität ([AAC][])
 
 <br/>
 
-Im Vergleich zu iOS kein Hardware-Unterstützung für en / decoding!
+Im Vergleich zu iOS keine Hardware-Unterstützung für en / decoding!
 
 [AAC]: http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4
 [Android 2.3.3]: http://developer.android.com/sdk/android-2.3.3.html
@@ -148,7 +148,7 @@ Wird normalerweise für Soundeffekte bei Spielen eingesetzt
 
 <br/>
 
-## Kompletter rewrite des Mediaframeworks in Android 2.3.
+## Kompletter rewrite des Medienframeworks in Android 2.3.
 ### (OpenCORE → stagefright)
 
 !SLIDE
@@ -203,19 +203,22 @@ All non-trivial abstractions, to some degree, are
 </p>
 </blockquote>
 
+
 !SLIDE
 
-    // include/media/stagefright/MediaErrors.h
-    namespace android {
-    enum {
-        MEDIA_ERROR_BASE        = -1000,
+### include/media/stagefright/MediaErrors.h
 
-        ERROR_ALREADY_CONNECTED = MEDIA_ERROR_BASE,
-        ERROR_NOT_CONNECTED     = MEDIA_ERROR_BASE - 1,
-        ERROR_UNKNOWN_HOST      = MEDIA_ERROR_BASE - 2,
-        ERROR_CANNOT_CONNECT    = MEDIA_ERROR_BASE - 3,
-        ERROR_IO                = MEDIA_ERROR_BASE - 4,
-        // ...
+    namespace android {
+      enum {
+          MEDIA_ERROR_BASE        = -1000,
+
+          ERROR_ALREADY_CONNECTED = MEDIA_ERROR_BASE,
+          ERROR_NOT_CONNECTED     = MEDIA_ERROR_BASE - 1,
+          ERROR_UNKNOWN_HOST      = MEDIA_ERROR_BASE - 2,
+          ERROR_CANNOT_CONNECT    = MEDIA_ERROR_BASE - 3,
+          ERROR_IO                = MEDIA_ERROR_BASE - 4,
+          // ...
+      }
     }
 
 !SLIDE
@@ -255,15 +258,23 @@ Das bedeutet:
 
 Seit Android 2.3 - zugänglich mit dem [Android NDK][] (C/C++).
 
-<br/>
-
-Vermeidet den overhead von JNI, löst jedoch nicht das Latenzproblem.
-
 [Android NDK]: http://developer.android.com/sdk/ndk/index.html
 
 !SLIDE
 
-# Latenz?
+# Open SL ES (2)
+
+<a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
+<embed src="hello/opensl_es.svg" height="90%" type="image/svg+xml"/>
+</a>
+
+!SLIDE
+
+# Open SL ES (3)
+
+Vermeidet den overhead von JNI, löst jedoch nicht das Latenzproblem.
+
+<br/>
 
 Wichtig für realtime-Andwendungen, z.B. virtuelle Synthesizer.
 
@@ -274,10 +285,6 @@ Idealerweise &lt; 10ms
 <br/>
 
 Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
-
-<br/>
-
-→ Nativer Code mit einer low-level API
 
 
 !SLIDE
@@ -310,9 +317,10 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 
 Android Service zwingend erforderlich
 
-    // MyPlaybackService.java
-    public void onCreate() {
+    public class MyPlaybackService extends Service {
+      public void onCreate() {
         startForeground(SERVICE_ID, getNotification());
+      }
     }
 
 !SLIDE
@@ -324,6 +332,10 @@ Android Service zwingend erforderlich
 <img src="hello/battery.png" class="left big"/>
 
 Mit WifiLocks, PowerLocks, ...
+
+<br/>
+
+Lifecycle: MediaPlayer.release(), AudioTrack.stop()
 
 !SLIDE
 
@@ -339,8 +351,9 @@ Mit WifiLocks, PowerLocks, ...
 
 !SLIDE
 
-## Albumartwork in Notifications
+# Notifikationen (2)
 
+Albumartwork in Notifications
 
 <img src="hello/ubermusic_notification.png" class="big"/>
 <img src="hello/ubermusic_player.png" class="big"/>
@@ -364,13 +377,21 @@ Mit WifiLocks, PowerLocks, ...
 
 # Interesse daran anmelden
 
-## registerMediaButtonEventReceiver (ab 2.2)
+### registerMediaButtonEventReceiver (ab 2.2)
 
     AudioManager m = getAudioManager();
 
     m.registerMediaButtonEventReceiver(
       new ComponentName(getPackageName(),
-      RemoteControlReceiver.class.getName()));
+      RemoteControl.class.getName()));
+
+Receiver:
+
+    public class RemoteControl extends BroadcastReceiver {
+      public void onReceive(Context c, Intent i) {
+        //
+      }
+    }
 
 !SLIDE
 
@@ -417,6 +438,7 @@ ACTION\_AUDIO\_BECOMING\_NOISY
 # Darf ich Musik spielen?
 
 
+    // Android 2.2+
     public void play() {
       AudioManager m = getAudioManager();
       m.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
@@ -449,11 +471,18 @@ Wichtig wenn mehrere apps gleichzeitig laufen
 
 # Sharing is caring
 
-Android hat Datenaustausch bereits eingebaut:
+Verarbeitung:
 
     <intent-filter>
-        <action android:name="android.intent.action.SEND"/>
-        <data android:mimeType="audio/*"/>
+      <action android:name="android.intent.action.SEND"/>
+      <data android:mimeType="audio/*"/>
+    </intent-filter>
+
+Erstellung:
+
+    <intent-filter>
+      <action android:name="android.intent.action.GET_CONTENT"/>
+      <data android:mimeType="audio/*"/>
     </intent-filter>
 
 !SLIDE
@@ -470,36 +499,38 @@ TapeMachine
 
 <img src="hello/tapemachine_share.png"/>
 
-Share
+TapeMachine: Share
 
 !SLIDE
 
 # Audio im Browser
 
-!SLIDE
-
-## HTML5 Audio
-
-<br/>
-
-  * 2.1 / 2.2 unsterstützen &lt;video&gt; Tag
-  * Ab 2.3: &lt;audio&gt;
-  * Getreue Umsetzung der HTML5 spec
-
-!SLIDE
-
-# HTML audio objekt
+## HTML5: &lt;audio&gt;
 
     <audio controls>
-      <source src="foo.mp3" type="audio/mp3">
-      <source src="foo.ogg" type="audio/ogg">
+      <source src="scotty.mp3" type="audio/mp3">
+      <source src="scotty.ogg" type="audio/ogg">
       Your browser does not support the audio element.
     </audio>
 
 <audio controls class="centered">
-  <source src="hello/foo.mp3" type="audio/mp3">
+  <source src="hello/scotty.mp3" type="audio/mp3">
   Your browser does not support the audio element.
 </audio>
+
+!SLIDE
+
+## HTML5 &lt;audio&gt; auf Android 
+
+<br/>
+
+  * 2.1 / 2.2 Browser unsterstützt nur &lt;video&gt; Tag
+  * Ab 2.3: &lt;audio&gt;
+
+
+<br/>
+
+### Getreue Umsetzung der HTML5 spec
 
 !SLIDE
 
@@ -521,26 +552,32 @@ Share
 
 !SLIDE
 
-
 # Zusammenfassung
 
 !SLIDE
 
-
 # Ausblick
 
-OpenAL
+* ?
+* OpenAL (Open Audio Library), 3D Audio
+* Support für mehr Hardware MIDI-Controller
+* Optimierungen (Latenz, Hardware acceleration ...)
+* Hoffentlich mehr Musik/Audio apps, bes. auf Tablets
 
 !SLIDE
 
 # Resourcen
 
 * [code.google.com/p/andraudio](http://code.google.com/p/andraudio)
-* [audioboo][]
-* [Last.fm Android app][]
-
+* [Advanced Android audio techniques][] - (Google I/O '10)
+* [Last.fm Android app][] - https://github.com/c99koder/lastfm-android/
+* [audioboo app][] - https://github.com/Audioboo/audioboo-android/
 
 [andraudio]: http://code.google.com/p/andraudio/
-[audioboo]: https://github.com/Audioboo/audioboo-android/
+[audioboo app]: https://github.com/Audioboo/audioboo-android/
 [Last.fm Android app]: https://github.com/c99koder/lastfm-android/
 [Advanced Android audio techniques]: http://www.google.com/events/io/2010/sessions/android-audio-techniques.html
+
+!SLIDE
+
+# Danke!
