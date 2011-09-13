@@ -11,64 +11,51 @@
 <br/>
 <br/>
 <br/>
+<br/>
+<br/>
 
 ## @jberkel
 
-
 !SLIDE
 
-# etwas über mich
+# über mich
 
 ## Android lead dev bei SoundCloud in Berlin
 
-![SoundCloud Logo](hello/800x500_orange.png)
-
-!SLIDE
-
-# SoundCloud
+<img src="hello/sound_heart.png" class="left"/>
+<!-- ![SoundCloud Logo](hello/800x500_orange.png) -->
 
 Audio sharing Plattform, gegründet 2007. Ca. 7 Mio User, Schwerpunkt liegt auf
 den “content creators”.
-
-![pic](hello/sound_heart.png)
 
 !SLIDE
 
 # SoundCloud Android app
 
+![pic](hello/recording.png)
+![pic](hello/player.png)
 ![pic](hello/stream.png)
 
-!SLIDE
-
-# Record sounds
-
-![pic](hello/recording.png)
+record / play / share
 
 !SLIDE
 
-# & play them
+# Herausforderungen
 
-![pic](hello/player.png)
+<br/>
 
-!SLIDE
-
-# challenges
-
-Android hat 4 (!) verschiedene Audio-APIs, mit unterschiedlicher Unterstützung
+Android hat über 5 verschiedene Audio-APIs, mit unterschiedlicher Unterstützung
 in den Geräten
 
 <br/>
 
-Das unterliegende low-level Medienframework wurde in Android 2.3 komplett ausgetauscht
-(OpenCORE → stagefright)
+Implementierungsdetails ändern sich sehr schnell
 
 !SLIDE
 
-# challenges (con't)
+# Herausforderungen (2)
 
-<span class="left">
-<img src="hello/market_2.png"/>
-</span>
+<img src="hello/market_challenge.png"/>
 
 sehr schwer allen Benutzern eine konsistente Experience zu bieten
 
@@ -120,6 +107,8 @@ Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgeste
 
 !SLIDE
 
+# Architektur
+
 <a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
 <embed src="hello/architecture.svg" height="90%" type="image/svg+xml"/>
 </a>
@@ -128,7 +117,7 @@ Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgeste
 
 # MediaRecorder
 
-Gegenstück zum Player, Aufnahme über das Mikrofon.
+Gegenstück zum Player, Aufnahme über das Mikrofon / line-in.
 
 <br/>
 
@@ -137,7 +126,7 @@ Unterstützte Formate varieren stark mit der Plattform. Gute Qualität ([AAC][])
 
 <br/>
 
-Im Vergleich zu iOS kein Hardware-support für en/decoding!
+Im Vergleich zu iOS kein Hardware-Unterstützung für en / decoding!
 
 [AAC]: http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4
 [Android 2.3.3]: http://developer.android.com/sdk/android-2.3.3.html
@@ -152,6 +141,108 @@ Low-latency, concurrent playback
 <br/>
 
 Wird normalerweise für Soundeffekte bei Spielen eingesetzt
+
+!SLIDE
+
+# Ab 2.3: stagefright
+
+<br/>
+
+## Kompletter rewrite des Mediaframeworks in Android 2.3.
+### (OpenCORE → stagefright)
+
+!SLIDE
+
+# stagefright
+
+<a href="https://docs.google.com/drawings/d/1TcO7CUBDW0FrzzU4nfkwZIgr_p5VqsthNzPjCQAFyqo/edit?hl=en_GB">
+<embed src="hello/stagefright.svg" height="90%" type="image/svg+xml"/>
+</a>
+
+!SLIDE
+
+# Unterschiede
+
+<br/>
+
+* Java API identisch,
+* aber:  Unterschiede zur Laufzeit
+
+<br/>
+
+[Ermittlung][] des Frameworks + spezifischer Code notwendig
+
+[Ermittlung]: http://stackoverflow.com/questions/4579885/determine-opencore-or-stagefright-framework-for-mediaplayer
+
+!SLIDE
+
+# hinzu kommt...
+
+<br/>
+
+manche 2.3+ Geräte benutzen *immer* noch OpenCORE (v.a. Samsung) - Erkennung
+nicht immer 100% zuverlässig
+
+!SLIDE
+
+# “This app SUCKS right now.”
+
+![pic](hello/sucks.png)
+
+!SLIDE
+
+# erschwertes debugging
+
+### MediaPlayer.OnErrorListener
+<img src="hello/mp_error.png" class="centered"/>
+
+<blockquote>
+<p>
+All non-trivial abstractions, to some degree, are
+<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">leaky</a>.
+</p>
+</blockquote>
+
+!SLIDE
+
+    // include/media/stagefright/MediaErrors.h
+    namespace android {
+    enum {
+        MEDIA_ERROR_BASE        = -1000,
+
+        ERROR_ALREADY_CONNECTED = MEDIA_ERROR_BASE,
+        ERROR_NOT_CONNECTED     = MEDIA_ERROR_BASE - 1,
+        ERROR_UNKNOWN_HOST      = MEDIA_ERROR_BASE - 2,
+        ERROR_CANNOT_CONNECT    = MEDIA_ERROR_BASE - 3,
+        ERROR_IO                = MEDIA_ERROR_BASE - 4,
+        // ...
+    }
+
+!SLIDE
+
+# ...und “issues”
+
+<img src="hello/bug_delay.png" class="centered big"/>
+
+[issue 15953][]
+
+[issue 15953]: http://code.google.com/p/android/issues/detail?id=15953
+
+!SLIDE
+
+# die alternative: go native
+
+<br/>
+Das bedeutet:
+<br/>
+
+* eigenes Streaming + Buffering
+* dekodieren der Audiodaten mit nativen Code
+* abspielen via AudioTrack-Interface
+
+<br/>
+
+→ Aufwand vs. Kontrolle
 
 !SLIDE
 
@@ -178,7 +269,7 @@ Wichtig für realtime-Andwendungen, z.B. virtuelle Synthesizer.
 
 <br/>
 
-Idealerweise &lt; 10ms (jede Millisekunde zählt)
+Idealerweise &lt; 10ms
 
 <br/>
 
@@ -188,76 +279,12 @@ Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
 
 → Nativer Code mit einer low-level API
 
-!SLIDE
-
-# “This app SUCKS right now.”
-
-![pic](hello/sucks.png)
-
-!SLIDE
-
-<a href="https://docs.google.com/drawings/d/1TcO7CUBDW0FrzzU4nfkwZIgr_p5VqsthNzPjCQAFyqo/edit?hl=en_GB">
-<embed src="hello/stagefright.svg" height="90%" type="image/svg+xml"/>
-</a>
-
-!SLIDE
-
-# moving goalposts
-## (OpenCORE → stagefright)
-
-Komplettes rewrite des Mediaframeworks in Android 2.3.
-
-<br/>
-
-Java API identisch, jedoch Unterschiede zur Laufzeit (kein seeking)
-
-<br/>
-
-[Ermittlung][] des Frameworks + spezifischer Code notwendig
-
-[Ermittlung]: http://stackoverflow.com/questions/4579885/determine-opencore-or-stagefright-framework-for-mediaplayer
-
-!SLIDE
-
-# hinzu kommt...
-
-<br/>
-
-manche 2.3+ Geräte benutzen immer noch OpenCORE (v.a. Samsung) - Erkennung des
-Frameworks nicht 100% zuverlässig
-
-!SLIDE
-
-# erschwertes debugging
-
-<img src="hello/mp_error.png" class="centered medium"/>
-
-!SLIDE
-
-# bugs im audiosystem
-
-[BUG-15953]: http://code.google.com/p/android/issues/detail?id=15953
-
-!SLIDE
-
-# die alternative: go native
-
-Das bedeutet:
-<br/>
-
-* Eigenes Streaming + Buffering
-* dekodieren der Audiodaten mit nativen Code
-* Abspielen via AudioTrack-Interface
-
-<br/>
-
-→ hoher Aufwand aber mehr Kontrolle
 
 !SLIDE
 
 # Implikationen von nativem Code
 
-Audiocode leicht portierbar, z.Zt. nur ARMv7 (FPU), zukünftig auch x86
+Audiocode leicht portierbar, z.Zt. nur ARMv7 (FPU), später auch x86
 
 <br/>
 
@@ -275,11 +302,7 @@ Dank JNI problemloses Mischen von nativem und Java-Code möglich
 
 <br/>
 
-## disclaimer: ich bin kein Designer.
-
-<br/>
-
-### Harmonische Integration von Audio apps im System
+### Ziel: harmonische Integration mit dem restlichen System
 
 !SLIDE
 
@@ -296,13 +319,15 @@ Android Service zwingend erforderlich
 
 # Energiesparen
 
+<br/>
+
 <img src="hello/battery.png" class="left big"/>
 
 Mit WifiLocks, PowerLocks, ...
 
 !SLIDE
 
-# Notifications
+# Notifikationen
 
 "Ongoing notification" für den aktuellen Track
 
@@ -310,12 +335,17 @@ Mit WifiLocks, PowerLocks, ...
 ![pic](hello/spotify_notification.png)
 ![pic](hello/spotify_player.png)
 
+(Spotify)
+
 !SLIDE
 
 ## Albumartwork in Notifications
 
-![pic](hello/ubermusic_notification.png)
-![pic](hello/ubermusic_player.png)
+
+<img src="hello/ubermusic_notification.png" class="big"/>
+<img src="hello/ubermusic_player.png" class="big"/>
+
+(UberMusic)
 
 !SLIDE
 
@@ -333,6 +363,8 @@ Mit WifiLocks, PowerLocks, ...
 
 
 # Interesse daran anmelden
+
+## registerMediaButtonEventReceiver (ab 2.2)
 
     AudioManager m = getAudioManager();
 
@@ -385,9 +417,14 @@ ACTION\_AUDIO\_BECOMING\_NOISY
 # Darf ich Musik spielen?
 
 
-    AudioManager m = getAudioManager();
-    m.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-      AudioManager.AUDIOFOCUS_GAIN);
+    public void play() {
+      AudioManager m = getAudioManager();
+      m.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+        AudioManager.AUDIOFOCUS_GAIN);
+    }
+    public void onAudioFocusChange(int change) {
+      // play track if focus obtained
+    }
 
 Wichtig wenn mehrere apps gleichzeitig laufen
 
@@ -397,9 +434,17 @@ Wichtig wenn mehrere apps gleichzeitig laufen
 
 <img src="hello/incoming_call.png" class="right"/>
 
-    TelephonyManager tmgr = getTelephonyManager();
-    tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+    TelephonyManager tmgr =
+        getTelephonyManager();
 
+    tmgr.listen(this, 
+        PhoneStateListener.LISTEN_CALL_STATE);
+
+
+    public void onCallStateChanged(int state, 
+        String incomingNumber) {
+      //
+    }
 !SLIDE
 
 # Sharing is caring
@@ -476,7 +521,15 @@ Share
 
 !SLIDE
 
+
+# Zusammenfassung
+
+!SLIDE
+
+
 # Ausblick
+
+OpenAL
 
 !SLIDE
 
@@ -490,3 +543,4 @@ Share
 [andraudio]: http://code.google.com/p/andraudio/
 [audioboo]: https://github.com/Audioboo/audioboo-android/
 [Last.fm Android app]: https://github.com/c99koder/lastfm-android/
+[Advanced Android audio techniques]: http://www.google.com/events/io/2010/sessions/android-audio-techniques.html
