@@ -32,11 +32,11 @@ den “content creators”.
 
 # SoundCloud Android app
 
-![pic](hello/recording.png)
-![pic](hello/player.png)
-![pic](hello/stream.png)
+![pic](hello/sc_recording.png)
+![pic](hello/sc_share.png)
+![pic](hello/sc_player.png)
 
-record / play / share
+record / share / play
 
 !SLIDE
 
