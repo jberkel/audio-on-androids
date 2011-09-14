@@ -1,0 +1,370 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <title>Audio on Android(s)</title>
+        <link href="assets/css/show.css" type="text/css" rel="stylesheet" />
+        <link href="assets/css/prettify.css" type="text/css" rel="stylesheet" />
+        <script type="text/javascript" src="assets/js/jquery.min.js"></script>
+        <script type="text/javascript" src="assets/js/show.js"></script>
+        <script type="text/javascript" src="assets/js/prettify/prettify.js"></script>
+        <script type="text/javascript" src="assets/js/prettify/lang-apollo.js"></script><script type="text/javascript" src="assets/js/prettify/lang-css.js"></script><script type="text/javascript" src="assets/js/prettify/lang-hs.js"></script><script type="text/javascript" src="assets/js/prettify/lang-lisp.js"></script><script type="text/javascript" src="assets/js/prettify/lang-lua.js"></script><script type="text/javascript" src="assets/js/prettify/lang-ml.js"></script><script type="text/javascript" src="assets/js/prettify/lang-proto.js"></script><script type="text/javascript" src="assets/js/prettify/lang-scala.js"></script><script type="text/javascript" src="assets/js/prettify/lang-sql.js"></script><script type="text/javascript" src="assets/js/prettify/lang-sql.js"></script><script type="text/javascript" src="assets/js/prettify/lang-vb.js"></script><script type="text/javascript" src="assets/js/prettify/lang-vhdl.js"></script><script type="text/javascript" src="assets/js/prettify/lang-wiki.js"></script><script type="text/javascript" src="assets/js/prettify/lang-yaml.js"></script><link href="css/custom.css?1316001642303" type="text/css" rel="stylesheet" />
+      <script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+      </head>
+      <body>
+        <div id="slides">
+          <div id="reel">
+            <div class="content" id="slide-0">
+       <div class="container"><br/>
+<br/>
+<img src="hello/android_headphones.jpg" class="right"/>
+<h3>Jan Berkel / SoundCloud</h3><h1>Audio on Android(s)</h1><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<h2>@jberkel</h2></div>
+      </div><div class="content" id="slide-1">
+       <div class="container"><h1>über mich</h1><h2>Android lead dev bei SoundCloud in Berlin</h2><img src="hello/sound_heart.png" class="left"/>
+<!-- ![SoundCloud Logo](hello/800x500_orange.png) -->
+<p>Audio-Sharing Plattform, gegründet 2007. Ca. 7 Mio User, web + API + native clients
+</p></div>
+      </div><div class="content" id="slide-2">
+       <div class="container"><h1>Übersicht</h1><br/>
+<ul><li>Erfahrungen + Herausforderungen
+</li><li>Android Audio APIs
+</li><li>Entwicklung mit dem NDK
+</li><li>Designaspekte / Android-Integration
+</li><li>HTML5 &lt;audio&gt;
+</li></ul></div>
+      </div><div class="content" id="slide-3">
+       <div class="container"><h1>SoundCloud Android app</h1><p><img  src="hello/sc_recording.png" alt="pic" />
+<img  src="hello/sc_share.png" alt="pic" />
+<img  src="hello/sc_player.png" alt="pic" />
+</p><p>record / share / stream
+</p></div>
+      </div><div class="content" id="slide-4">
+       <div class="container"><h1>Herausforderungen</h1><br/>
+<p>Android hat über 5 verschiedene Audio-APIs, mit unterschiedlicher Unterstützung
+in den Geräten
+</p><br/>
+<p>Neue Geräte
+</p><br/>
+<p>Implementierungsdetails ändern sich sehr schnell
+</p><br/>
+<ul><li>2.1 Januar '10
+</li><li>2.2 Mai '10
+</li><li>2.3 Dez '10
+</li><li>3.0 Februar '11
+</li></ul></div>
+      </div><div class="content" id="slide-5">
+       <div class="container"><h1>Herausforderungen (2)</h1><img src="hello/market_challenge.png"/>
+<p>sehr schwer allen Benutzern eine konsistente Experience zu bieten
+</p></div>
+      </div><div class="content" id="slide-6">
+       <div class="container"><h1>import android.media.*</h1><h2>Die verschienden Audio APIs</h2><br/>
+<ul><li><a href="http://developer.android.com/reference/android/media/AudioTrack.html" >AudioTrack</a>
+</li><li><a href="http://developer.android.com/reference/android/media/MediaPlayer.html" >MediaPlayer</a>
+</li><li><a href="http://developer.android.com/reference/android/media/MediaRecorder.html" >MediaRecorder</a>
+</li><li><a href="http://developer.android.com/reference/android/media/SoundPool.html" >SoundPool</a>
+</li><li><a href="http://www.khronos.org/opensles/" >OpenSL ES</a>
+</li></ul></div>
+      </div><div class="content" id="slide-7">
+       <div class="container"><h1>AudioTrack</h1><p>Ausgabe von “rohen” Audio-Daten (PCM)
+</p><pre><code>AudioTrack track = new AudioTrack(
+     AudioManager.STREAM_MUSIC, 44100,
+     AudioFormat.CHANNEL_CONFIGURATION_MONO,
+     AudioFormat.ENCODING_PCM_16BIT,
+     bufferSize, AudioTrack.MODE_STREAM);
+track.play();
+track.write(new byte[] { 1b, 2b, 3b }, 0, 3);
+</code></pre></div>
+      </div><div class="content" id="slide-8">
+       <div class="container"><h1>MediaPlayer</h1><p>High-level Audio/Video player, unterstützt HTTP Streaming.
+</p><pre><code>MediaPlayer player = new MediaPlayer();
+player.setDataSource(&quot;http://foo.com/audio.mp3&quot;);
+player.prepare();
+player.start();
+</code></pre><p>Die eigentliche Funktionalität wird von mehreren nativen Frameworks bereitgestellt
+</p></div>
+      </div><div class="content" id="slide-9">
+       <div class="container"><h1>Architektur</h1><a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
+<embed src="hello/architecture.svg" height="90%" type="image/svg+xml"/>
+</a>
+</div>
+      </div><div class="content" id="slide-10">
+       <div class="container"><h1>MediaRecorder</h1><p>Gegenstück zum Player, Aufnahme über das Mikrofon / line-in.
+</p><br/>
+<p>Unterstützte Formate varieren stark mit der Plattform. Gute Qualität (<a href="http://developer.android.com/reference/android/media/MediaRecorder.OutputFormat.html#MPEG_4" >AAC</a>) erst ab
+<a href="http://developer.android.com/sdk/android-2.3.3.html" >Android 2.3.3</a> möglich.
+</p><br/>
+<p>Im Vergleich zu iOS keine Hardware-Unterstützung für en / decoding!
+</p></div>
+      </div><div class="content" id="slide-11">
+       <div class="container"><h1>SoundPool</h1><p>Low-latency, concurrent playback
+</p><br/>
+<p>Wird normalerweise für Soundeffekte bei Spielen eingesetzt
+</p></div>
+      </div><div class="content" id="slide-12">
+       <div class="container"><h1>Ab 2.3: stagefright</h1><br/>
+<h2>Kompletter rewrite des Medienframeworks in Android 2.3.</h2><h3>(OpenCORE → stagefright)</h3></div>
+      </div><div class="content" id="slide-13">
+       <div class="container"><h1>stagefright</h1><a href="https://docs.google.com/drawings/d/1TcO7CUBDW0FrzzU4nfkwZIgr_p5VqsthNzPjCQAFyqo/edit?hl=en_GB">
+<embed src="hello/stagefright.svg" height="90%" type="image/svg+xml"/>
+</a>
+</div>
+      </div><div class="content" id="slide-14">
+       <div class="container"><h1>Unterschiede</h1><br/>
+<ul><li>Java API identisch,
+</li><li>aber:  Unterschiede zur Laufzeit
+</li></ul><br/>
+<p><a href="http://stackoverflow.com/questions/4579885/determine-opencore-or-stagefright-framework-for-mediaplayer" >Ermittlung</a> des Frameworks + spezifischer Code notwendig
+</p></div>
+      </div><div class="content" id="slide-15">
+       <div class="container"><h1>hinzu kommt...</h1><br/>
+<p>manche 2.3+ Geräte benutzen <em>immer</em> noch OpenCORE (v.a. Samsung) - Erkennung
+nicht immer 100% zuverlässig
+</p><pre><code>if (android.os.BUILD.SDK_INT &gt; 8) {
+  // enable seeking
+}
+</code></pre><h2>fail!</h2></div>
+      </div><div class="content" id="slide-16">
+       <div class="container"><h1>“This app SUCKS right now.”</h1><p><img  src="hello/sucks.png" alt="pic" />
+</p></div>
+      </div><div class="content" id="slide-17">
+       <div class="container"><h1>erschwertes debugging</h1><h3>MediaPlayer.OnErrorListener</h3><img src="hello/mp_error.png" class="centered"/>
+<blockquote>
+<p>
+All non-trivial abstractions, to some degree, are
+<a href="http://www.joelonsoftware.com/articles/LeakyAbstractions.html">leaky</a>.
+</p>
+</blockquote>
+<p>The Law of Leaky Abstractions (Joel Spolsky)
+</p></div>
+      </div><div class="content" id="slide-18">
+       <div class="container"><h3>include/media/stagefright/MediaErrors.h</h3><pre><code>namespace android {
+  enum {
+      MEDIA_ERROR_BASE        = -1000,
+
+      ERROR_ALREADY_CONNECTED = MEDIA_ERROR_BASE,
+      ERROR_NOT_CONNECTED     = MEDIA_ERROR_BASE - 1,
+      ERROR_UNKNOWN_HOST      = MEDIA_ERROR_BASE - 2,
+      ERROR_CANNOT_CONNECT    = MEDIA_ERROR_BASE - 3,
+      ERROR_IO                = MEDIA_ERROR_BASE - 4,
+      // ...
+  }
+}
+</code></pre></div>
+      </div><div class="content" id="slide-19">
+       <div class="container"><h1>...und “issues”</h1><img src="hello/bug_delay.png" class="centered big"/>
+<p><a href="http://code.google.com/p/android/issues/detail?id=15953" >issue 15953</a>
+</p></div>
+      </div><div class="content" id="slide-20">
+       <div class="container"><h1>Testen der häufigsten Geräte</h1><img src="hello/market_stats.png" class="centered big"/>
+</div>
+      </div><div class="content" id="slide-21">
+       <div class="container"><h1>die alternative: go native</h1><p><br/>
+Das bedeutet:
+<br/>
+</p><ul><li>eigenes Streaming + Buffering
+</li><li>dekodieren der Audiodaten mit nativen Code
+</li><li>abspielen via AudioTrack-Interface
+</li></ul><br/>
+<p>→ Aufwand vs. Kontrolle
+</p></div>
+      </div><div class="content" id="slide-22">
+       <div class="container"><h1>OpenSL ES</h1><blockquote><p>OpenSL ES is an application-level C-language audio API designed for
+resource-constrained devices.
+</p></blockquote><br/>
+<p>Seit Android 2.3 - zugänglich mit dem <a href="http://developer.android.com/sdk/ndk/index.html" >Android NDK</a> (C/C++).
+</p></div>
+      </div><div class="content" id="slide-23">
+       <div class="container"><h1>OpenSL ES (2)</h1><a href="https://docs.google.com/drawings/d/1s7NEFBzlJy_e52y2mdc-W1cFIkGsL4Cyfo9FI5silLI/edit?hl=en_GB">
+<embed src="hello/opensl_es.svg" height="90%" type="image/svg+xml"/>
+</a>
+</div>
+      </div><div class="content" id="slide-24">
+       <div class="container"><h1>OpenSL ES (3)</h1><p>Vermeidet den overhead von JNI, löst jedoch nicht das Latenzproblem.
+</p><br/>
+<p>Wichtig für realtime-Andwendungen, z.B. virtuelle Synthesizer.
+</p><br/>
+<p>Idealerweise &lt; 10ms
+</p><br/>
+<p>Störfaktoren: CPU time, GC-Zyklen, JNI, I/O
+</p></div>
+      </div><div class="content" id="slide-25">
+       <div class="container"><h1>Implikationen von nativem Code</h1><p>Audiocode leicht portierbar, z.Zt. nur ARMv7 (FPU), später auch x86
+</p><br/>
+<p>Dank JNI problemloses Mischen von nativem und Java-Code möglich
+</p></div>
+      </div><div class="content" id="slide-26">
+       <div class="container"><h1>Designaspekte von Audio apps</h1><br/>
+<h3>Ziel: harmonische Integration mit dem restlichen System</h3></div>
+      </div><div class="content" id="slide-27">
+       <div class="container"><h1>Hintergrundmusik</h1><p>Android Service zwingend erforderlich
+</p><pre><code>public class MyPlaybackService extends Service {
+  public void onCreate() {
+    startForeground(SERVICE_ID, getNotification());
+  }
+}
+</code></pre></div>
+      </div><div class="content" id="slide-28">
+       <div class="container"><h1>Energiesparen</h1><br/>
+<img src="hello/battery.png" class="left big"/>
+<p>Mit WifiLocks, PowerLocks, ...
+</p><br/>
+<p>Lifecycle: MediaPlayer.release(), AudioTrack.stop()
+</p></div>
+      </div><div class="content" id="slide-29">
+       <div class="container"><h1>Notifikationen</h1><p>&quot;Ongoing notification&quot; für den aktuellen Track
+</p><p><img  src="hello/spotify_browser.png" alt="pic" />
+<img  src="hello/spotify_notification.png" alt="pic" />
+<img  src="hello/spotify_player.png" alt="pic" />
+</p><p>(Spotify)
+</p></div>
+      </div><div class="content" id="slide-30">
+       <div class="container"><h1>Notifikationen (2)</h1><p>Albumartwork in Notifications
+</p><img src="hello/ubermusic_notification.png" class="big"/>
+<img src="hello/ubermusic_player.png" class="big"/>
+<p>(UberMusic)
+</p></div>
+      </div><div class="content" id="slide-31">
+       <div class="container"><h2>An die Hardware denken</h2><img src="hello/headphones.jpg" class="centered big"/>
+</div>
+      </div><div class="content" id="slide-32">
+       <div class="container"><h2>Fernbedienung</h2><img src="hello/headphones_button.jpg" class="centered big"/>
+</div>
+      </div><div class="content" id="slide-33">
+       <div class="container"><h1>Interesse daran anmelden</h1><h3>registerMediaButtonEventReceiver (ab 2.2)</h3><pre><code>AudioManager m = getAudioManager();
+
+m.registerMediaButtonEventReceiver(
+  new ComponentName(getPackageName(),
+  RemoteControl.class.getName()));
+</code></pre><p>Receiver:
+</p><pre><code>public class RemoteControl extends BroadcastReceiver {
+  public void onReceive(Context c, Intent i) {
+    //
+  }
+}
+</code></pre></div>
+      </div><div class="content" id="slide-34">
+       <div class="container"><h1>Nützliche Events</h1><p><br/>
+KeyEvent.KEYCODE_MEDIA_
+</p><br/>
+<ul><li><a href="http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_PAUSE" >PLAY_PAUSE</a>
+</li><li><a href="http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_PREVIOUS" >PREVIOUS</a>
+</li><li><a href="http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_NEXT" >NEXT</a>
+</li><li><a href="http://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_MEDIA_PLAY_REWIND" >REWIND</a>
+</li></ul></div>
+      </div><div class="content" id="slide-35">
+       <div class="container"><h1>Nützliche Events (2)</h1><p><br/>
+ACTION_AUDIO_BECOMING_NOISY
+</p><br/>
+<!-- Wird vom System gesendet wenn der Kopfhörer entfernt wird -->
+</div>
+      </div><div class="content" id="slide-36">
+       <div class="container"><h1>Lockscreen</h1><img src="hello/lock_screen_player.png" class="left"/>
+<ul><li>com.android.music.metachanged
+</li><li>com.android.music.playstatechanged
+</li></ul></div>
+      </div><div class="content" id="slide-37">
+       <div class="container"><h1>Darf ich Musik spielen?</h1><pre><code>// Android 2.2+
+public void play() {
+  AudioManager m = getAudioManager();
+  m.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+    AudioManager.AUDIOFOCUS_GAIN);
+}
+public void onAudioFocusChange(int change) {
+  // play track if focus obtained
+}
+</code></pre><p>Wichtig wenn mehrere apps gleichzeitig laufen
+</p></div>
+      </div><div class="content" id="slide-38">
+       <div class="container"><h1>Wenn's Telefon klingelt</h1><img src="hello/incoming_call.png" class="right"/>
+<pre><code>TelephonyManager tmgr =
+    getTelephonyManager();
+
+tmgr.listen(this,
+    PhoneStateListener.LISTEN_CALL_STATE);
+
+public void onCallStateChanged(int state,
+    String incomingNumber) {
+  //
+}
+</code></pre></div>
+      </div><div class="content" id="slide-39">
+       <div class="container"><h1>Sharing is caring</h1><p>Verarbeitung:
+</p><pre><code>&lt;intent-filter&gt;
+  &lt;action android:name=&quot;android.intent.action.SEND&quot;/&gt;
+  &lt;data android:mimeType=&quot;audio/*&quot;/&gt;
+&lt;/intent-filter&gt;
+</code></pre><p>Erstellung:
+</p><pre><code>&lt;intent-filter&gt;
+  &lt;action android:name=&quot;android.intent.action.GET_CONTENT&quot;/&gt;
+  &lt;data android:mimeType=&quot;audio/*&quot;/&gt;
+&lt;/intent-filter&gt;
+</code></pre></div>
+      </div><div class="content" id="slide-40">
+       <div class="container"><h1>Audio senden</h1><img src="hello/tapemachine.png"/>
+<p>TapeMachine
+</p></div>
+      </div><div class="content" id="slide-41">
+       <div class="container"><h1>Audio senden (2)</h1><img src="hello/tapemachine_share.png"/>
+<p>TapeMachine: Share
+</p></div>
+      </div><div class="content" id="slide-42">
+       <div class="container"><h1>Audio im Browser</h1><h2>HTML5: &lt;audio&gt;</h2><pre><code>&lt;audio controls&gt;
+  &lt;source src=&quot;scotty.mp3&quot; type=&quot;audio/mp3&quot;&gt;
+  &lt;source src=&quot;scotty.ogg&quot; type=&quot;audio/ogg&quot;&gt;
+  Your browser does not support the audio element.
+&lt;/audio&gt;
+</code></pre><audio controls class="centered">
+  <source src="hello/scotty.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
+</div>
+      </div><div class="content" id="slide-43">
+       <div class="container"><h2>HTML5 &lt;audio&gt; auf Android</h2><br/>
+<ul><li>2.1 / 2.2 Browser unsterstützt nur &lt;video&gt; Tag
+</li><li>Ab 2.3: &lt;audio&gt;
+</li></ul><br/>
+<h3>Getreue Umsetzung der HTML5 spec</h3></div>
+      </div><div class="content" id="slide-44">
+       <div class="container"><h1>html5test.com</h1><img src="hello/html5test_big.png" class="centered big"/>
+</div>
+      </div><div class="content" id="slide-45">
+       <div class="container"><h1>flash is required</h1><img src="hello/thesixtyone.png" class="big"/>
+</div>
+      </div><div class="content" id="slide-46">
+       <div class="container"><h1>m.soundcloud.com</h1><img src="hello/m_soundcloud_com.png" class="centered big"/>
+</div>
+      </div><div class="content" id="slide-47">
+       <div class="container"><h1>Zusammenfassung</h1><br/>
+<ul><li>Audio-Support in Android ist mächtig
+</li><li>schwer für alle Anwender / Geräte zu optimieren
+</li><li>erhöhter Entwicklungsaufwand
+</li><li>Wichtig ist gute Integration mit dem System
+</li></ul></div>
+      </div><div class="content" id="slide-48">
+       <div class="container"><h1>Ausblick</h1><br/>
+<ul><li>?
+</li><li>Support für mehr Hardware MIDI-Controller
+</li><li>Optimierungen (Latenz, Hardware acceleration ...)
+</li><li>Hoffentlich mehr Musik/Audio apps, bes. auf Tablets
+</li></ul></div>
+      </div><div class="content" id="slide-49">
+       <div class="container"><h1>Resourcen</h1><ul><li><a href="http://code.google.com/p/andraudio" >code.google.com/p/andraudio</a>
+</li><li><a href="http://www.google.com/events/io/2010/sessions/android-audio-techniques.html" >Advanced Android audio techniques</a> - (Google I/O '10)
+</li><li><a href="https://github.com/c99koder/lastfm-android/" >Last.fm Android app</a> - https://github.com/c99koder/lastfm-android/
+</li><li><a href="https://github.com/Audioboo/audioboo-android/" >audioboo app</a> - https://github.com/Audioboo/audioboo-android/
+</li></ul></div>
+      </div><div class="content" id="slide-50">
+       <div class="container"><h1>Danke!</h1></div>
+      </div>
+          </div>
+        </div>
+        <script type="text/javascript" src="js/custom.js?1316001642989"></script>
+      </body>
+    </html>
